@@ -1,7 +1,7 @@
 #include "validation.hpp"
-#include "chess.h"
-#include "game.h"
-#include "user_interface.h"
+#include "chess.hpp"
+#include "game.hpp"
+#include "user_interface.hpp"
 
 #include <cassert>
 #include <iostream>

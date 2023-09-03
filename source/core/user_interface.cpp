@@ -1,5 +1,5 @@
-#include "user_interface.h"
-#include "board.h"
+#include "user_interface.hpp"
+#include "board.hpp"
 
 #include <cassert>
 #include <iostream>

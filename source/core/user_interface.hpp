@@ -1,7 +1,7 @@
 #pragma once
-#include "board.h"
-#include "chess.h"
-#include "game.h"
+#include "board.hpp"
+#include "chess.hpp"
+#include "game.hpp"
 
 namespace chess {
 void createNextMessage(const std::string &msg);

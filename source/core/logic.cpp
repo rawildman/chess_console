@@ -1,4 +1,4 @@
-#include "logic.h"
+#include "logic.hpp"
 
 #include <algorithm>
 #include <cassert>

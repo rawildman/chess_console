@@ -1,6 +1,6 @@
 #pragma once
 
-#include "board.h"
+#include "board.hpp"
 
 namespace chess {
 struct EnPassant;

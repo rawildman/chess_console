@@ -1,6 +1,6 @@
-#include "game.h"
-#include "logic.h"
-#include "user_interface.h"
+#include "game.hpp"
+#include "logic.hpp"
+#include "user_interface.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -530,8 +530,7 @@ bool Game::isPathFree(const Position startingPos, const Position finishingPos,
     // finishingPos.iColumn If the piece wants to move from column 0 to column
     // 7, we must check if columns 1-6 are free
     if (startingPos.iRow == finishingPos.iRow) {
-      std::cout << "Error. Movement is vertical but row is the same\n";
-      throw("Error. Movement is vertical but row is the same");
+      throw(GameException("Movement is vertical but row is the same"));
     }
 
     // Moving up
@@ -624,9 +623,8 @@ bool Game::isPathFree(const Position startingPos, const Position finishingPos,
         }
       }
     }
-
     else {
-      throw("Error. Diagonal move not allowed");
+      throw(GameException("Diagonal move not allowed"));
     }
   } break;
   }
@@ -674,8 +672,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
     // finishingPos.iColumn If the piece wants to move from column 0 to column
     // 7, we must check if columns 1-6 are free
     if (startingPos.iRow == finishingPos.iRow) {
-      std::cout << "Error. Movement is vertical but row is the same\n";
-      throw("Error. Movement is vertical but row is the same");
+      throw(GameException("Movement is vertical but row is the same"));
     }
 
     // Moving up
@@ -748,10 +745,8 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
         }
       }
     }
-
     else {
-      std::cout << "Error. Diagonal move not allowed\n";
-      throw("Error. Diagonal move not allowed");
+      throw(GameException("Diagonal move not allowed"));
     }
   } break;
   }
@@ -858,7 +853,7 @@ bool Game::isCheckMate() {
       } break;
 
       default: {
-        throw("!!!!Should not reach here. Invalid piece");
+        throw(GameException("Invalid piece"));
       } break;
       }
     }
@@ -1016,8 +1011,7 @@ void makeTheMove(chess::Game &current_game, const chess::Position present,
         chess::getPieceColor(*chPiece) != chess::getPieceColor(*chAuxPiece)) {
       createNextMessage(chess::describePiece(*chAuxPiece) + " captured!\n");
     } else {
-      std::cout << "Error. We should not be making this move\n";
-      throw("Error. We should not be making this move");
+      throw(GameException("We should not be making this move"));
     }
   } else if (S_enPassant.bApplied) {
     createNextMessage("Pawn captured by \"en passant\" move!\n");

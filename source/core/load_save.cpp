@@ -1,5 +1,5 @@
-#include "game.h"
-#include "user_interface.h"
+#include "game.hpp"
+#include "user_interface.hpp"
 #include "validation.hpp"
 
 #include <chrono>

@@ -1,6 +1,6 @@
-#include "chess.h"
+#include "chess.hpp"
 #include "load_save.hpp"
-#include "user_interface.h"
+#include "user_interface.hpp"
 #include "validation.hpp"
 
 #include <cassert>
@@ -137,16 +137,14 @@ void movePiece(chess::Game &current_game) {
   // Check if this move we just did put the oponent's king in check
   // Keep in mind that player turn has already changed
   // ---------------------------------------------------------------
-  if (true == current_game.playerKingInCheck()) {
-    if (true == current_game.isCheckMate()) {
+  if (current_game.playerKingInCheck()) {
+    if (current_game.isCheckMate()) {
       if (chess::Side::kWhite == current_game.getCurrentTurn()) {
         appendToNextMessage("Checkmate! Black wins the game!\n");
       } else {
         appendToNextMessage("Checkmate! White wins the game!\n");
       }
     } else {
-      // Add to the std::string with '+=' because it's possible that
-      // there is already one message (e.g., piece captured)
       if (chess::Side::kWhite == current_game.getCurrentTurn()) {
         appendToNextMessage("White king is in check!\n");
       } else {
@@ -243,8 +241,8 @@ int main() {
         std::cout << "Option does not exist\n\n";
       } break;
       }
-    } catch (const char *s) {
-      s;
+    } catch (const chess::GameException& err) {
+      std::cout << "Error: " << err.what() << std::endl;
     }
   }
 

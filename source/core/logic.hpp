@@ -1,7 +1,7 @@
 #pragma once
 
-#include "board.h"
-#include "chess.h"
+#include "board.hpp"
+#include "chess.hpp"
 
 #include <optional>
 

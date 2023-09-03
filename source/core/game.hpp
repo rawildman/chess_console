@@ -1,14 +1,20 @@
 #pragma once
-#include "chess.h"
+#include "chess.hpp"
 
 #include <array>
 #include <deque>
+#include <exception>
 #include <map>
 #include <vector>
 
 namespace chess {
 
 std::pair<Position, Position> parseMove(const std::string &move);
+
+class GameException : public std::runtime_error {
+public:
+  GameException(const std::string &err) : std::runtime_error(err) {}
+};
 
 class Game {
 public:
