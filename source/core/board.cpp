@@ -5,11 +5,6 @@
 #include <map>
 #include <unordered_map>
 
-// For back trace
-#include <execinfo.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 namespace chess {
 namespace {
 void affirmIndices(const int row, const int col) {
@@ -45,6 +40,11 @@ std::ostream &operator<<(std::ostream &stream, const Position &pos) {
 
 std::ostream &operator<<(std::ostream &stream, const PieceWithSide &piece) {
   stream << pieceToChar(piece);
+  return stream;
+}
+
+std::ostream &operator<<(std::ostream &stream, const SquareState &state) {
+  stream << (state ? pieceToChar(*state) : 'E');
   return stream;
 }
 
@@ -86,6 +86,8 @@ SquareState Board::getPieceConsiderMove(
   }
 }
 
+const Board::BoardArray &Board::boardState() const { return mBoard; }
+
 PieceWithSide charToPiece(const char piece) { return kCharToPieces.at(piece); }
 
 char pieceToChar(const PieceWithSide piece) { return kPiecesToChar.at(piece); }
@@ -100,7 +102,7 @@ bool validBoardPosition(const Position &pos) {
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Initial board", "[board]") {
+TEST_CASE("Initial board") {
   chess::Board board;
   CHECK(board(0, 0) == chess::pieces::R);
   CHECK(board(1, 0) == chess::pieces::P);
@@ -113,19 +115,19 @@ TEST_CASE("Initial board", "[board]") {
   CHECK(board(chess::kNumRows - 1, chess::kNumCols - 1) == chess::pieces::r);
 }
 
-TEST_CASE("Piece conversion", "[pieceToChar]") {
+TEST_CASE("Piece conversion pieceToChar") {
   CHECK(chess::pieceToChar(chess::pieces::P) == 'P');
   CHECK(chess::pieceToChar(chess::pieces::p) == 'p');
 }
 
-TEST_CASE("Piece conversion", "[charToPiece]") {
+TEST_CASE("Piece conversion charToPiece") {
   CHECK(chess::charToPiece('P') == chess::pieces::P);
   CHECK(chess::charToPiece('p') == chess::pieces::p);
   CHECK(chess::charToPiece('Q') == chess::pieces::Q);
   CHECK(chess::charToPiece('q') == chess::pieces::q);
 }
 
-TEST_CASE("Board", "[validBoardPosition]") {
+TEST_CASE("Board validBoardPosition") {
   // Valid
   CHECK(chess::validBoardPosition(chess::Position{.iRow = 0, .iColumn = 0}));
   CHECK(chess::validBoardPosition(
@@ -148,7 +150,7 @@ TEST_CASE("Board", "[validBoardPosition]") {
       chess::Position{.iRow = chess::kNumRows, .iColumn = chess::kNumCols}));
 }
 
-TEST_CASE("Board", "[getPieceConsideredMove]") {
+TEST_CASE("Board getPieceConsideredMove") {
   const chess::Board board;
   // No intended move
   CHECK(board.getPieceConsiderMove(chess::Position{0, 0}).has_value());

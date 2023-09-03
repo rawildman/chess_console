@@ -34,6 +34,8 @@ std::ostream &operator<<(std::ostream &stream, const PieceWithSide &piece);
 
 using SquareState = std::optional<PieceWithSide>;
 
+std::ostream &operator<<(std::ostream &stream, const SquareState &piece);
+
 struct IntendedMove {
   PieceWithSide chPiece;
   Position from;
@@ -61,16 +63,25 @@ constexpr auto k = PieceWithSide{.mPiece = Piece::kKing, .mSide = Side::kBlack};
 constexpr auto p = PieceWithSide{.mPiece = Piece::kPawn, .mSide = Side::kBlack};
 constexpr auto E = std::nullopt;
 
+// clang-format off
 constexpr std::array<SquareState, kNumPositions> kInitialBoardState = {
-    R, N, B, Q, K, B, N, R, P, P, P, P, P, P, P, P, E, E, E, E, E, E,
-    E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E, E,
-    E, E, E, E, p, p, p, p, p, p, p, p, r, n, b, q, k, b, n, r};
+    R, N, B, Q, K, B, N, R,
+    P, P, P, P, P, P, P, P,
+    E, E, E, E, E, E, E, E,
+    E, E, E, E, E, E, E, E,
+    E, E, E, E, E, E, E, E,
+    E, E, E, E, E, E, E, E,
+    p, p, p, p, p, p, p, p,
+    r, n, b, q, k, b, n, r};
+// clang-format on
 } // namespace pieces
 
 class Board {
 public:
+  using BoardArray = std::array<SquareState, kNumPositions>;
+
   Board() = default;
-  Board(std::array<SquareState, kNumPositions> initial_board);
+  Board(BoardArray initial_board);
 
   SquareState &operator()(int row, int col);
   SquareState operator()(int row, int col) const;
@@ -82,8 +93,10 @@ public:
       Position pos,
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
+  const BoardArray &boardState() const;
+
 private:
-  std::array<SquareState, kNumPositions> mBoard = pieces::kInitialBoardState;
+  BoardArray mBoard = pieces::kInitialBoardState;
 };
 
 PieceWithSide charToPiece(char piece);

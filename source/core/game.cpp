@@ -85,7 +85,7 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
     capturePiece(*chCapturedEP);
 
     // Now, remove the captured pawn
-    board(S_enPassant.PawnCaptured.iRow, S_enPassant.PawnCaptured.iColumn) =
+    m_board(S_enPassant.PawnCaptured.iRow, S_enPassant.PawnCaptured.iColumn) =
         pieces::E;
 
     // Set Undo structure as piece was captured and "en passant" move was
@@ -98,15 +98,15 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
   }
 
   // Remove piece from present position
-  board(present.iRow, present.iColumn) = pieces::E;
+  m_board(present.iRow, present.iColumn) = pieces::E;
 
   // Move piece to new position
   if (S_promotion.bApplied) {
-    board(future.iRow, future.iColumn) = S_promotion.chAfter;
+    m_board(future.iRow, future.iColumn) = S_promotion.chAfter;
     // Set Undo structure as a promotion occured
     m_undo.promotion = S_promotion;
   } else {
-    board(future.iRow, future.iColumn) = chPiece;
+    m_board(future.iRow, future.iColumn) = chPiece;
     // Reset m_undo.promotion
     m_undo.promotion = std::nullopt;
   }
@@ -118,10 +118,10 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
     const SquareState chPiece = getPieceAtPosition(S_castling.rook_before);
 
     // Remove the rook from present position
-    board(S_castling.rook_before) = pieces::E;
+    m_board(S_castling.rook_before) = pieces::E;
 
     // 'Jump' into to new position
-    board(S_castling.rook_after) = chPiece;
+    m_board(S_castling.rook_after) = chPiece;
 
     // Write this information to the m_undo struct
     m_undo.castling = S_castling;
@@ -175,9 +175,9 @@ void Game::undoLastMove() {
   // Moving it back
   // If there was a castling
   if (m_undo.promotion && m_undo.promotion->bApplied) {
-    board(from.iRow, from.iColumn) = m_undo.promotion->chBefore;
+    m_board(from.iRow, from.iColumn) = m_undo.promotion->chBefore;
   } else {
-    board(from.iRow, from.iColumn) = chPiece;
+    m_board(from.iRow, from.iColumn) = chPiece;
   }
 
   // Change turns
@@ -200,24 +200,24 @@ void Game::undoLastMove() {
     // Move the captured piece back. Was this an "en passant" move?
     if (m_undo.en_passant && m_undo.en_passant->bApplied) {
       // Move the captured piece back
-      board(m_undo.en_passant->PawnCaptured.iRow,
+      m_board(m_undo.en_passant->PawnCaptured.iRow,
             m_undo.en_passant->PawnCaptured.iColumn) = chCaptured;
       // Remove the attacker
-      board(to.iRow, to.iColumn) = pieces::E;
+      m_board(to.iRow, to.iColumn) = pieces::E;
     } else {
-      board(to.iRow, to.iColumn) = chCaptured;
+      m_board(to.iRow, to.iColumn) = chCaptured;
     }
   } else {
-    board(to.iRow, to.iColumn) = pieces::E;
+    m_board(to.iRow, to.iColumn) = pieces::E;
   }
 
   // If there was a castling
   if (m_undo.castling && m_undo.castling->bApplied) {
     const SquareState chRook = getPieceAtPosition(m_undo.castling->rook_after);
     // Remove the rook from present position
-    board(m_undo.castling->rook_after) = pieces::E;
+    m_board(m_undo.castling->rook_after) = pieces::E;
     // 'Jump' into to new position
-    board(m_undo.castling->rook_before) = chRook;
+    m_board(m_undo.castling->rook_before) = chRook;
     // Restore the values of castling allowed or not
     m_bCastlingKingSideAllowed[getCurrentTurn()] =
         m_undo.bCastlingKingSideAllowed;
@@ -251,19 +251,19 @@ bool Game::castlingAllowed(const BoardSide iSide, const Side iColor) const {
 }
 
 SquareState Game::getPieceAtPosition(const Position pos) const {
-  return board(pos.iRow, pos.iColumn);
+  return m_board(pos.iRow, pos.iColumn);
 }
 
 SquareState Game::getPieceConsiderMove(
     const Position pos,
     const std::optional<IntendedMove> &intended_move) const {
-  return board.getPieceConsiderMove(pos, intended_move);
+  return m_board.getPieceConsiderMove(pos, intended_move);
 }
 
 UnderAttack
 Game::isUnderAttack(const Position pos, const Side iColor,
                     const std::optional<IntendedMove> &intended_move) const {
-  return underAttack(pos, iColor, board, intended_move);
+  return underAttack(pos, iColor, m_board, intended_move);
 }
 
 bool Game::isReachable(const Position pos, const Side iColor) const {
@@ -998,6 +998,11 @@ void Game::capturePiece(const PieceWithSide piece) {
   }
 }
 
+const Board& Game::board() const
+{
+  return m_board;
+}
+
 void makeTheMove(chess::Game &current_game, const chess::Position present,
                  const chess::Position future, chess::EnPassant &S_enPassant,
                  chess::Castling &S_castling, chess::Promotion &S_promotion) {
@@ -1030,7 +1035,7 @@ void makeTheMove(chess::Game &current_game, const chess::Position present,
 
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Parse move", "[charToRow]") {
+TEST_CASE("Parse move charToRow") {
   CHECK(chess::charToRow('1') == 0);
   CHECK(chess::charToRow('2') == 1);
   CHECK(chess::charToRow('3') == 2);
@@ -1041,7 +1046,7 @@ TEST_CASE("Parse move", "[charToRow]") {
   CHECK(chess::charToRow('8') == 7);
 }
 
-TEST_CASE("Parse move", "[charToCol]") {
+TEST_CASE("Parse move charToCol") {
   CHECK(chess::charToColumn('A') == 0);
   CHECK(chess::charToColumn('B') == 1);
   CHECK(chess::charToColumn('C') == 2);
@@ -1052,7 +1057,7 @@ TEST_CASE("Parse move", "[charToCol]") {
   CHECK(chess::charToColumn('H') == 7);
 }
 
-TEST_CASE("Parse move", "[parseMove]") {
+TEST_CASE("Parse move parseMove") {
   const auto [from, to] = chess::parseMove("A2-A4");
   CHECK(from.iRow == 1);
   CHECK(from.iColumn == 0);
@@ -1060,7 +1065,7 @@ TEST_CASE("Parse move", "[parseMove]") {
   CHECK(to.iColumn == 0);
 }
 
-TEST_CASE("Game", "[getPieceAtPosition]") {
+TEST_CASE("Game getPieceAtPosition") {
   const chess::Game game;
   CHECK(game.getPieceAtPosition(chess::Position{0, 0}).has_value());
   CHECK(game.getPieceAtPosition(chess::Position{0, 0}).value() ==
@@ -1071,7 +1076,7 @@ TEST_CASE("Game", "[getPieceAtPosition]") {
   CHECK(!game.getPieceAtPosition(chess::Position{3, 3}).has_value());
 }
 
-TEST_CASE("Game", "[getPieceConsideredMove]") {
+TEST_CASE("Game getPieceConsideredMove") {
   const chess::Game game;
   // No intended move
   CHECK(game.getPieceConsiderMove(chess::Position{0, 0}).has_value());
@@ -1089,7 +1094,7 @@ TEST_CASE("Game", "[getPieceConsideredMove]") {
       chess::pieces::P);
 }
 
-TEST_CASE("Game", "[isUnderAttack_initialBoard]") {
+TEST_CASE("Game isUnderAttack_initialBoard") {
   const chess::Game game;
   // Not under attack
   {
@@ -1113,7 +1118,7 @@ TEST_CASE("Game", "[isUnderAttack_initialBoard]") {
   }
 }
 
-TEST_CASE("Game", "[findKing]") {
+TEST_CASE("Game findKing") {
   chess::Game game;
   const chess::Position whiteKingPosition = game.findKing(chess::Side::kWhite);
   CHECK(whiteKingPosition == chess::Position{0, 4});

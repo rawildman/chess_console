@@ -92,11 +92,13 @@ public:
   std::vector<PieceWithSide> white_captured;
   std::vector<PieceWithSide> black_captured;
 
+  const Board& board() const;
+
 private:
   void capturePiece(PieceWithSide piece);
 
 private:
-  chess::Board board;
+  chess::Board m_board;
 
   // Undo is possible?
   struct Undo {

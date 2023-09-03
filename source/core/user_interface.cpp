@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <iterator>
 #include <map>
 
 namespace chess {
@@ -10,11 +11,6 @@ namespace {
 constexpr char WHITE_SQUARE = 0x20;
 constexpr char BLACK_SQUARE = 0x2F;
 constexpr char EMPTY_SQUARE = 0x20;
-
-const std::map<PieceWithSide, char> kPieceToChar = {
-    {pieces::R, 'R'}, {pieces::N, 'N'}, {pieces::B, 'B'}, {pieces::Q, 'Q'},
-    {pieces::K, 'K'}, {pieces::P, 'P'}, {pieces::r, 'r'}, {pieces::n, 'n'},
-    {pieces::b, 'b'}, {pieces::q, 'q'}, {pieces::k, 'k'}, {pieces::p, 'p'}};
 
 const std::map<Side, char> kSideToChar = {{Side::kWhite, WHITE_SQUARE},
                                           {Side::kBlack, BLACK_SQUARE}};
@@ -29,7 +25,7 @@ void printSquare(const Position &position, const int subLine,
   // For 6 sub-columns, sub-column 3
   if (subLine == 1 && subColumn == 3) {
     const SquareState state = game.getPieceAtPosition(position);
-    std::cout << (state ? kPieceToChar.at(*state) : kSideToChar.at(color));
+    std::cout << (state ? pieceToChar(*state) : kSideToChar.at(color));
   } else {
     std::cout << kSideToChar.at(color);
   }
@@ -143,13 +139,13 @@ void printSituation(const Game &game) {
     std::cout << "---------------------------------------------\n";
     std::cout << "WHITE captured: ";
     for (unsigned i = 0; i < game.white_captured.size(); i++) {
-      std::cout << kPieceToChar.at(game.white_captured[i]) << " ";
+      std::cout << pieceToChar(game.white_captured[i]) << " ";
     }
     std::cout << "\n";
 
     std::cout << "black captured: ";
     for (unsigned i = 0; i < game.black_captured.size(); i++) {
-      std::cout << kPieceToChar.at(game.black_captured[i]) << " ";
+      std::cout << pieceToChar(game.black_captured[i]) << " ";
     }
     std::cout << "\n";
 
@@ -198,4 +194,11 @@ Position toPosition(const std::string &move) {
   }
   return {.iRow = row - '1', .iColumn = column - 'A'};
 }
+
+void printBoardDebug(const Game& game)
+{
+  const Board::BoardArray& board = game.board().boardState();
+  std::copy(board.cbegin(), board.cend(), std::ostream_iterator<SquareState>(std::cout, ", "));
+}
+
 } // namespace chess

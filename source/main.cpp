@@ -171,6 +171,7 @@ int main() {
   while (bRun) {
     chess::printMessage();
     chess::printMenu();
+    chess::printBoardDebug(current_game);
 
     // Get input from user
     std::cout << "Type here: ";

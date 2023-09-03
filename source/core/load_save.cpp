@@ -1,3 +1,4 @@
+#include "load_save.hpp"
 #include "game.hpp"
 #include "user_interface.hpp"
 #include "validation.hpp"
@@ -40,12 +41,13 @@ void saveGame(const chess::Game &current_game) {
 chess::Game loadGame() {
   std::string file_name;
   std::cout << "Type file name to be loaded (no extension): ";
-
   getline(std::cin, file_name);
   file_name += ".dat";
+  return loadGame(file_name);
+}
 
-  std::ifstream ifs(file_name);
-
+chess::Game loadGame(const std::filesystem::path& file) {
+  std::ifstream ifs(file);
   if (ifs) {
     // First, reset the pieces
     auto current_game = chess::Game{};
@@ -129,10 +131,10 @@ chess::Game loadGame() {
       }
     }
     // Extra line after the user input
-    createNextMessage("Game loaded from " + file_name + "\n");
+    createNextMessage("Game loaded from " + file.string() + "\n");
     return current_game;
   } else {
-    createNextMessage("Error loading " + file_name +
+    createNextMessage("Error loading " + file.string() +
                       ". Creating a new game instead\n");
     return chess::Game{};
   }

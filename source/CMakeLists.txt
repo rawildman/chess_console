@@ -32,6 +32,7 @@ if(${BUILD_UNIT_TESTS})
 endif()
 
 add_subdirectory(core)
+add_subdirectory(test)
 
 set(EXE_SRC main.cpp)
 add_executable(chess ${EXE_SRC})
