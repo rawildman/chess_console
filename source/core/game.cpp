@@ -201,7 +201,7 @@ void Game::undoLastMove() {
     if (m_undo.en_passant && m_undo.en_passant->bApplied) {
       // Move the captured piece back
       m_board(m_undo.en_passant->PawnCaptured.iRow,
-            m_undo.en_passant->PawnCaptured.iColumn) = chCaptured;
+              m_undo.en_passant->PawnCaptured.iColumn) = chCaptured;
       // Remove the attacker
       m_board(to.iRow, to.iColumn) = pieces::E;
     } else {
@@ -622,8 +622,7 @@ bool Game::isPathFree(const Position startingPos, const Position finishingPos,
           std::cout << "Diagonal path down-left is not clear!\n";
         }
       }
-    }
-    else {
+    } else {
       throw(GameException("Diagonal move not allowed"));
     }
   } break;
@@ -744,8 +743,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
           bBlocked = true;
         }
       }
-    }
-    else {
+    } else {
       throw(GameException("Diagonal move not allowed"));
     }
   } break;
@@ -998,10 +996,7 @@ void Game::capturePiece(const PieceWithSide piece) {
   }
 }
 
-const Board& Game::board() const
-{
-  return m_board;
-}
+const Board &Game::board() const { return m_board; }
 
 void makeTheMove(chess::Game &current_game, const chess::Position present,
                  const chess::Position future, chess::EnPassant &S_enPassant,

@@ -92,7 +92,7 @@ public:
   std::vector<PieceWithSide> white_captured;
   std::vector<PieceWithSide> black_captured;
 
-  const Board& board() const;
+  const Board &board() const;
 
 private:
   void capturePiece(PieceWithSide piece);

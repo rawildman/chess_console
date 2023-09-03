@@ -46,7 +46,7 @@ chess::Game loadGame() {
   return loadGame(file_name);
 }
 
-chess::Game loadGame(const std::filesystem::path& file) {
+chess::Game loadGame(const std::filesystem::path &file) {
   std::ifstream ifs(file);
   if (ifs) {
     // First, reset the pieces

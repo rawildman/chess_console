@@ -195,10 +195,10 @@ Position toPosition(const std::string &move) {
   return {.iRow = row - '1', .iColumn = column - 'A'};
 }
 
-void printBoardDebug(const Game& game)
-{
-  const Board::BoardArray& board = game.board().boardState();
-  std::copy(board.cbegin(), board.cend(), std::ostream_iterator<SquareState>(std::cout, ", "));
+void printBoardDebug(const Game &game) {
+  const Board::BoardArray &board = game.board().boardState();
+  std::copy(board.cbegin(), board.cend(),
+            std::ostream_iterator<SquareState>(std::cout, ", "));
 }
 
 } // namespace chess

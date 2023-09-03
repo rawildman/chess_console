@@ -239,7 +239,7 @@ int main() {
         std::cout << "Option does not exist\n\n";
       } break;
       }
-    } catch (const chess::GameException& err) {
+    } catch (const chess::GameException &err) {
       std::cout << "Error: " << err.what() << std::endl;
     }
   }
