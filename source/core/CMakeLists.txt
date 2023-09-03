@@ -1,10 +1,10 @@
 set(LIB_SRC chess.cpp game.cpp load_save.cpp user_interface.cpp board.cpp logic.cpp validation.cpp)
 set(LIB_HDR chess.hpp game.hpp load_save.hpp user_interface.hpp board.hpp logic.hpp validation.hpp)
 
-add_library(chess_core ${LIB_SRC} ${LIB_HDR})
-target_include_directories(chess_core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-set_property(TARGET chess_core PROPERTY CXX_STANDARD 20)
-set_property(TARGET chess_core PROPERTY CXX_STANDARD_REQUIRED ON)
+add_library(core ${LIB_SRC} ${LIB_HDR})
+target_include_directories(core PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+set_property(TARGET core PROPERTY CXX_STANDARD 20)
+set_property(TARGET core PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(${BUILD_UNIT_TESTS})
     add_executable(core_unittests ${LIB_SRC})

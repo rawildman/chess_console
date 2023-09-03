@@ -159,22 +159,19 @@ void movePiece(chess::Game &current_game) {
 } // namespace chess
 
 int main() {
-  bool bRun = true;
-
-  // Clear screen an print the logo
   chess::clearScreen();
   chess::printLogo();
 
-  std::string input = "";
-
+  bool bRun = true;
   chess::Game current_game;
   while (bRun) {
     chess::printMessage();
     chess::printMenu();
-    chess::printBoardDebug(current_game);
 
     // Get input from user
     std::cout << "Type here: ";
+
+    std::string input = "";
     getline(std::cin, input);
 
     if (input.length() != 1) {

@@ -32,10 +32,11 @@ if(${BUILD_UNIT_TESTS})
 endif()
 
 add_subdirectory(core)
+add_subdirectory(score)
 add_subdirectory(test)
 
 set(EXE_SRC main.cpp)
 add_executable(chess ${EXE_SRC})
 set_property(TARGET chess PROPERTY CXX_STANDARD 20)
 set_property(TARGET chess PROPERTY CXX_STANDARD_REQUIRED ON)
-target_link_libraries(chess PRIVATE chess_core)
+target_link_libraries(chess PRIVATE core)

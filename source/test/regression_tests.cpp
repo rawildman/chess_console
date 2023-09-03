@@ -27,15 +27,14 @@ TEST_CASE("bug", "[regression]") {
   using namespace chess::pieces;
   // clang-format off
   constexpr chess::Board::BoardArray expected{
-    //A  B  C  D  E  F  G  H
-      R, N, B, K, R, E, E, E,  // 1
-      E, E, P, P, E, P, P, P,  // 2
-      P, E, E, E, E, E, E, N,  // 3
-      P, E, E, E, q, E, E, E,  // 4
-      E, E, E, E, E, E, E, E,  // 5 
-      p, p, E, p, E, E, p, p,  // 6
-      E, E, p, E, b, p, E, E,  // 7
-      r, n, E, E, k, E, n, Q}; // 8
+      R, N, B, K, R, E, E, E,
+      E, E, P, P, E, P, P, P,
+      P, E, E, E, E, E, E, N,
+      P, E, E, E, q, E, E, E,
+      E, E, E, E, E, E, E, E,
+      p, p, E, p, E, E, p, p,
+      E, E, p, E, b, p, E, E,
+      r, n, E, E, k, E, n, Q};
   // clang-format on
 
   const chess::Game game = chess::loadGame("dat/bug.dat");
