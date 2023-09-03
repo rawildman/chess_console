@@ -83,17 +83,17 @@ public:
   Board() = default;
   Board(BoardArray initial_board);
 
-  SquareState &operator()(int row, int col);
-  SquareState operator()(int row, int col) const;
+  [[nodiscard]] SquareState &operator()(int row, int col);
+  [[nodiscard]] SquareState operator()(int row, int col) const;
 
-  SquareState &operator()(Position pos);
-  SquareState operator()(Position pos) const;
+  [[nodiscard]] SquareState &operator()(Position pos);
+  [[nodiscard]] SquareState operator()(Position pos) const;
 
-  SquareState getPieceConsiderMove(
+  [[nodiscard]] SquareState getPieceConsiderMove(
       Position pos,
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
-  const BoardArray &boardState() const;
+  [[nodiscard]] const BoardArray &boardState() const;
 
 private:
   BoardArray mBoard = pieces::kInitialBoardState;
