@@ -55,7 +55,7 @@ public:
   bool playerKingInCheck(
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
-  bool wouldKingBeInCheck(PieceWithSide chPiece, Position present,
+  bool wouldKingBeInCheck(PieceWithSide piece, Position present,
                           Position future, EnPassant &S_enPassant) const;
 
   void changeTurns();

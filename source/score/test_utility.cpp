@@ -6,7 +6,7 @@ namespace chess::score::test {
 /// Generates a test move, the piece and starting location are arbitrary.
 chess::IntendedMove testMove(const chess::Position &move,
                              const chess::Side side) {
-  return {.chPiece = {.mPiece = chess::Piece::kPawn, .mSide = side},
+  return {.piece = {.mPiece = chess::Piece::kPawn, .mSide = side},
           .from = {},
           .to = move};
 }

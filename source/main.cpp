@@ -36,19 +36,19 @@ void movePiece(chess::Game &current_game) {
 
   const Position present = toPosition(move_from);
 
-  const SquareState chPiece = current_game.getPieceAtPosition(present);
+  const SquareState piece = current_game.getPieceAtPosition(present);
 
-  if (!chPiece) {
+  if (!piece) {
     createNextMessage("You picked an EMPTY square.\n");
     return;
   }
-  std::cout << "Piece is " << pieceToChar(*chPiece) << "\n";
+  std::cout << "Piece is " << pieceToChar(*piece) << "\n";
   if (Side::kWhite == current_game.getCurrentTurn() &&
-      chess::isBlackPiece(*chPiece)) {
+      chess::isBlackPiece(*piece)) {
     createNextMessage("It is WHITE's turn and you picked a BLACK piece\n");
     return;
   } else if (Side::kBlack == current_game.getCurrentTurn() &&
-             chess::isWhitePiece(*chPiece)) {
+             chess::isWhitePiece(*piece)) {
     createNextMessage("It is BLACK's turn and you picked a WHITE piece\n");
     return;
   }

@@ -15,7 +15,7 @@ std::unordered_map<chess::Piece, double> kPieceValues = {
 double TakesPiece::operator()(const chess::Board &board,
                               const chess::IntendedMove &move) const {
   const chess::SquareState result = board(move.to);
-  if (result.has_value() && result->mSide != move.chPiece.mSide) {
+  if (result.has_value() && result->mSide != move.piece.mSide) {
     return kPieceValues.at(result->mPiece);
   } else {
     return 0.0;

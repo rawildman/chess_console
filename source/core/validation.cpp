@@ -12,37 +12,37 @@ bool isMoveValid(const Game &current_game, const Position present,
                  chess::Castling &S_castling, chess::Promotion &S_promotion) {
   bool bValid = false;
 
-  const SquareState chPiece = current_game.getPieceAtPosition(present);
-  assert(chPiece.has_value());
+  const SquareState piece = current_game.getPieceAtPosition(present);
+  assert(piece.has_value());
 
   // ----------------------------------------------------
   // 1. Is the piece  allowed to move in that direction?
   // ----------------------------------------------------
-  switch (chPiece->mPiece) {
+  switch (piece->mPiece) {
   case Piece::kPawn: {
     // Wants to move forward
     if (future.iColumn == present.iColumn) {
       // Simple move forward
-      if ((chess::isWhitePiece(*chPiece) && future.iRow == present.iRow + 1) ||
-          (chess::isBlackPiece(*chPiece) && future.iRow == present.iRow - 1)) {
+      if ((chess::isWhitePiece(*piece) && future.iRow == present.iRow + 1) ||
+          (chess::isBlackPiece(*piece) && future.iRow == present.iRow - 1)) {
         if (!current_game.getPieceAtPosition(future)) {
           bValid = true;
         }
       }
 
       // Double move forward
-      else if ((chess::isWhitePiece(*chPiece) &&
+      else if ((chess::isWhitePiece(*piece) &&
                 future.iRow == present.iRow + 2) ||
-               (chess::isBlackPiece(*chPiece) &&
+               (chess::isBlackPiece(*piece) &&
                 future.iRow == present.iRow - 2)) {
         // This is only allowed if the pawn is in its original place
-        if (chess::isWhitePiece(*chPiece)) {
+        if (chess::isWhitePiece(*piece)) {
           if (!current_game.getPieceAtPosition(
                   {future.iRow - 1, future.iColumn}) &&
               !current_game.getPieceAtPosition(future) && 1 == present.iRow) {
             bValid = true;
           }
-        } else // if ( isBlackPiece(chPiece) )
+        } else // if ( isBlackPiece(piece) )
         {
           if (!current_game.getPieceAtPosition(
                   {future.iRow + 1, future.iColumn}) &&
@@ -57,9 +57,9 @@ bool isMoveValid(const Game &current_game, const Position present,
     }
 
     // The "en passant" move
-    else if ((chess::isWhitePiece(*chPiece) && 4 == present.iRow &&
+    else if ((chess::isWhitePiece(*piece) && 4 == present.iRow &&
               5 == future.iRow && 1 == abs(future.iColumn - present.iColumn)) ||
-             (chess::isBlackPiece(*chPiece) && 3 == present.iRow &&
+             (chess::isBlackPiece(*piece) && 3 == present.iRow &&
               2 == future.iRow && 1 == abs(future.iColumn - present.iColumn))) {
       // It is only valid if last move of the opponent was a double move forward
       // by a pawn on a adjacent column
@@ -90,8 +90,8 @@ bool isMoveValid(const Game &current_game, const Position present,
 
     // Wants to capture a piece
     else if (1 == abs(future.iColumn - present.iColumn)) {
-      if ((chess::isWhitePiece(*chPiece) && future.iRow == present.iRow + 1) ||
-          (chess::isBlackPiece(*chPiece) && future.iRow == present.iRow - 1)) {
+      if ((chess::isWhitePiece(*piece) && future.iRow == present.iRow + 1) ||
+          (chess::isBlackPiece(*piece) && future.iRow == present.iRow - 1)) {
         // Only allowed if there is something to be captured in the square
         if (current_game.getPieceAtPosition(future)) {
           bValid = true;
@@ -104,8 +104,8 @@ bool isMoveValid(const Game &current_game, const Position present,
     }
 
     // If a pawn reaches its eight rank, it must be promoted to another piece
-    if ((chess::isWhitePiece(*chPiece) && 7 == future.iRow) ||
-        (chess::isBlackPiece(*chPiece) && 0 == future.iRow)) {
+    if ((chess::isWhitePiece(*piece) && 7 == future.iRow) ||
+        (chess::isBlackPiece(*piece) && 0 == future.iRow)) {
       std::cout << "Pawn must be promoted!\n";
       S_promotion.bApplied = true;
     }
@@ -227,7 +227,7 @@ bool isMoveValid(const Game &current_game, const Position present,
         // if future.iColumn is greather, it means king side
         if (false ==
             current_game.castlingAllowed(chess::BoardSide::KING_SIDE,
-                                         chess::getPieceSide(*chPiece))) {
+                                         chess::getPieceSide(*piece))) {
           createNextMessage("Castling to the king side is not allowed.\n");
           return false;
         } else {
@@ -255,7 +255,7 @@ bool isMoveValid(const Game &current_game, const Position present,
       {
         // if present.iColumn is greather, it means queen side
         if (!current_game.castlingAllowed(BoardSide::QUEEN_SIDE,
-                                          getPieceSide(*chPiece))) {
+                                          getPieceSide(*piece))) {
           createNextMessage("Castling to the queen side is not allowed.\n");
           return false;
         } else {
@@ -300,7 +300,7 @@ bool isMoveValid(const Game &current_game, const Position present,
   // -------------------------------------------------------------------------
   if (current_game.isSquareOccupied(future)) {
     if (const SquareState chAuxPiece = current_game.getPieceAtPosition(future);
-        chAuxPiece && getPieceSide(*chPiece) == getPieceSide(*chAuxPiece)) {
+        chAuxPiece && getPieceSide(*piece) == getPieceSide(*chAuxPiece)) {
       std::cout << "Position is already taken by a piece of the same color\n";
       return false;
     }
@@ -309,7 +309,7 @@ bool isMoveValid(const Game &current_game, const Position present,
   // ----------------------------------------------
   // 3. Would the king be in check after the move?
   // ----------------------------------------------
-  if (current_game.wouldKingBeInCheck(*chPiece, present, future, S_enPassant)) {
+  if (current_game.wouldKingBeInCheck(*piece, present, future, S_enPassant)) {
     std::cout << "Move would put player's king in check\n";
     return false;
   }

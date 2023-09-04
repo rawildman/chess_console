@@ -37,7 +37,7 @@ using SquareState = std::optional<PieceWithSide>;
 std::ostream &operator<<(std::ostream &stream, const SquareState &piece);
 
 struct IntendedMove {
-  PieceWithSide chPiece;
+  PieceWithSide piece;
   Position from;
   Position to;
 };

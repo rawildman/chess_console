@@ -35,8 +35,8 @@ std::pair<Position, Position> parseMove(const std::string &move) {
 void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
                      Castling &S_castling, Promotion &S_promotion) {
   // Get the piece to be moved
-  const SquareState chPiece = getPieceAtPosition(present);
-  assert(chPiece);
+  const SquareState piece = getPieceAtPosition(present);
+  assert(piece);
 
   // Is the destination square occupied?
   const SquareState chCapturedPiece = getPieceAtPosition(future);
@@ -75,7 +75,7 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
     // Set Undo structure as a promotion occured
     m_undo.promotion = S_promotion;
   } else {
-    m_board(future.iRow, future.iColumn) = chPiece;
+    m_board(future.iRow, future.iColumn) = piece;
     // Reset m_undo.promotion
     m_undo.promotion = std::nullopt;
   }
@@ -84,13 +84,13 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
   if (S_castling.bApplied) {
     // The king was already move, but we still have to move the rook to 'jump'
     // the king
-    const SquareState chPiece = getPieceAtPosition(S_castling.rook_before);
+    const SquareState piece = getPieceAtPosition(S_castling.rook_before);
 
     // Remove the rook from present position
     m_board(S_castling.rook_before) = pieces::E;
 
     // 'Jump' into to new position
-    m_board(S_castling.rook_after) = chPiece;
+    m_board(S_castling.rook_after) = piece;
 
     // Write this information to the m_undo struct
     m_undo.castling = S_castling;
@@ -106,11 +106,11 @@ void Game::movePiece(Position present, Position future, EnPassant &S_enPassant,
   }
 
   // Castling requirements
-  if (chPiece->mPiece == Piece::kKing) {
+  if (piece->mPiece == Piece::kKing) {
     // After the king has moved once, no more castling allowed
     m_bCastlingKingSideAllowed[getCurrentTurn()] = false;
     m_bCastlingQueenSideAllowed[getCurrentTurn()] = false;
-  } else if (chPiece->mPiece == Piece::kRook) {
+  } else if (piece->mPiece == Piece::kRook) {
     // If the rook moved from column 'A', no more castling allowed on the queen
     // side
     if (0 == present.iColumn) {
@@ -139,14 +139,14 @@ void Game::undoLastMove() {
 
   // Since we want to undo a move, we will be moving the piece from (iToRow,
   // iToColumn) to (iFromRow, iFromColumn)
-  const SquareState chPiece = getPieceAtPosition(to);
+  const SquareState piece = getPieceAtPosition(to);
 
   // Moving it back
   // If there was a castling
   if (m_undo.promotion && m_undo.promotion->bApplied) {
     m_board(from.iRow, from.iColumn) = m_undo.promotion->chBefore;
   } else {
-    m_board(from.iRow, from.iColumn) = chPiece;
+    m_board(from.iRow, from.iColumn) = piece;
   }
 
   // Change turns
@@ -752,8 +752,7 @@ bool Game::isCheckMate() {
       continue;
     }
 
-    const IntendedMove intended_move{.chPiece =
-                                         getPieceAtPosition(king).value(),
+    const IntendedMove intended_move{.piece = getPieceAtPosition(king).value(),
                                      .from = king,
                                      .to = posToTest};
 
@@ -841,11 +840,11 @@ bool Game::playerKingInCheck(
   return isKingInCheck(m_board, getCurrentTurn(), intended_move);
 }
 
-bool Game::wouldKingBeInCheck(const PieceWithSide chPiece,
-                              const Position present, const Position future,
+bool Game::wouldKingBeInCheck(const PieceWithSide piece, const Position present,
+                              const Position future,
                               EnPassant &S_enPassant) const {
   const IntendedMove intended_move{
-      .chPiece = chPiece, .from = present, .to = future};
+      .piece = piece, .from = present, .to = future};
   return playerKingInCheck(intended_move);
 }
 
@@ -943,14 +942,14 @@ const Board &Game::board() const { return m_board; }
 void makeTheMove(chess::Game &current_game, const chess::Position present,
                  const chess::Position future, chess::EnPassant &S_enPassant,
                  chess::Castling &S_castling, chess::Promotion &S_promotion) {
-  const SquareState chPiece = current_game.getPieceAtPosition(present);
+  const SquareState piece = current_game.getPieceAtPosition(present);
   // -----------------------
   // Captured a piece?
   // -----------------------
-  if (chPiece && current_game.isSquareOccupied(future)) {
+  if (piece && current_game.isSquareOccupied(future)) {
     if (const SquareState chAuxPiece = current_game.getPieceAtPosition(future);
         chAuxPiece &&
-        chess::getPieceSide(*chPiece) != chess::getPieceSide(*chAuxPiece)) {
+        chess::getPieceSide(*piece) != chess::getPieceSide(*chAuxPiece)) {
       createNextMessage(chess::describePiece(*chAuxPiece) + " captured!\n");
     } else {
       throw(GameException("We should not be making this move"));
@@ -1019,7 +1018,7 @@ TEST_CASE("Game getPieceConsideredMove") {
   CHECK(game.getPieceConsiderMove(chess::Position{0, 0}).has_value());
   // With intended move of pawn
   constexpr auto intendedMove =
-      chess::IntendedMove{.chPiece = chess::pieces::P,
+      chess::IntendedMove{.piece = chess::pieces::P,
                           .from = chess::Position{.iRow = 1, .iColumn = 0},
                           .to = chess::Position{.iRow = 3, .iColumn = 0}};
   CHECK(!game.getPieceConsiderMove(chess::Position{1, 0}, intendedMove)

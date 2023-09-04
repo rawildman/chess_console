@@ -24,7 +24,7 @@ void updateAttack(UnderAttack &attack, const Position position,
 bool isKingInCheck(const Board &board, Side side,
                    const std::optional<IntendedMove> &intended_move) {
   const Position king =
-      intended_move.has_value() && Piece::kKing == intended_move->chPiece.mPiece
+      intended_move.has_value() && Piece::kKing == intended_move->piece.mPiece
           ? intended_move->to
           : findKing(board, side);
   const UnderAttack king_attacked =

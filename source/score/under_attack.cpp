@@ -8,7 +8,7 @@ namespace chess::score {
 double UnderAttack::operator()(const chess::Board &board,
                                const chess::IntendedMove &move) const {
   const chess::UnderAttack result =
-      chess::underAttack(move.to, move.chPiece.mSide, board);
+      chess::underAttack(move.to, move.piece.mSide, board);
   return -result.iNumAttackers;
 }
 

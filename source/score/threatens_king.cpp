@@ -6,8 +6,8 @@
 namespace chess::score {
 double ThreatensKing::operator()(const chess::Board &board,
                                  const chess::IntendedMove &move) const {
-  const bool kingInCheck = chess::isKingInCheck(
-      board, chess::opponentSide(move.chPiece.mSide), move);
+  const bool kingInCheck =
+      chess::isKingInCheck(board, chess::opponentSide(move.piece.mSide), move);
   return kingInCheck ? 1.0 : 0.0;
 }
 } // namespace chess::score
@@ -40,16 +40,15 @@ TEST_CASE("Threatens King") {
       E, E, E, K, E, E, E, E,
       E, E, E, E, E, E, n, E};
     // clang-format on
-    const auto queenCheck =
-        chess::IntendedMove{.chPiece = {.mPiece = chess::Piece::kQueen,
-                                        .mSide = chess::Side::kWhite},
-                            .from = {2, 2},
-                            .to = {2, 3}};
+    const auto queenCheck = chess::IntendedMove{
+        .piece = {.mPiece = chess::Piece::kQueen, .mSide = chess::Side::kWhite},
+        .from = {2, 2},
+        .to = {2, 3}};
     CHECK(scorer(board, queenCheck) == 1.0);
 
     const auto knightCheck =
-        chess::IntendedMove{.chPiece = {.mPiece = chess::Piece::kKnight,
-                                        .mSide = chess::Side::kBlack},
+        chess::IntendedMove{.piece = {.mPiece = chess::Piece::kKnight,
+                                      .mSide = chess::Side::kBlack},
                             .from = {7, 6},
                             .to = {5, 5}};
     CHECK(scorer(board, queenCheck) == 1.0);

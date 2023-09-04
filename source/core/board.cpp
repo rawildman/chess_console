@@ -102,17 +102,17 @@ SquareState Board::getPieceConsiderMove(
     const Position pos,
     const std::optional<IntendedMove> &intended_move) const {
   if (intended_move) {
-    SquareState chPiece = (*this)(pos);
+    SquareState piece = (*this)(pos);
     // In this case, we are trying to understand what WOULD happed if the move
     // was made, so we consider a move that has not been made yet
     if (intended_move->from == pos) {
       // The piece wants to move from that square, so it would be empty
-      chPiece = pieces::E;
+      piece = pieces::E;
     } else if (intended_move->to == pos) {
       // The piece wants to move to that square, so return the piece
-      chPiece = intended_move->chPiece;
+      piece = intended_move->piece;
     }
-    return chPiece;
+    return piece;
   } else {
     return (*this)(pos);
   }
@@ -206,7 +206,7 @@ TEST_CASE("Board getPieceConsideredMove") {
   CHECK(board.getPieceConsiderMove(chess::Position{0, 0}).has_value());
   // With intended move of pawn
   constexpr auto intendedMove =
-      chess::IntendedMove{.chPiece = chess::pieces::P,
+      chess::IntendedMove{.piece = chess::pieces::P,
                           .from = chess::Position{.iRow = 1, .iColumn = 0},
                           .to = chess::Position{.iRow = 3, .iColumn = 0}};
   CHECK(!board.getPieceConsiderMove(chess::Position{1, 0}, intendedMove)
