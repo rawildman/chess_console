@@ -1,5 +1,14 @@
-set(LIB_SRC takes_piece.cpp threatens_king.cpp under_attack.cpp)
-set(LIB_HDR core_fwds.hpp takes_piece.cpp threatens_king.hpp under_attack.hpp)
+set(LIB_SRC
+    escapes_attack.cpp
+    takes_piece.cpp 
+    threatens_king.cpp 
+    under_attack.cpp)
+set(LIB_HDR 
+    core_fwds.hpp 
+    escapes_attack.hpp
+    takes_piece.hpp 
+    threatens_king.hpp 
+    under_attack.hpp)
 
 add_library(score ${LIB_SRC} ${LIB_HDR})
 target_include_directories(score PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
