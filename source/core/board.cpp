@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "board_positions.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -11,38 +12,6 @@ void affirmIndices(const int row, const int col) {
   assert(row >= 0 && row < kNumRows);
   assert(col >= 0 && col < kNumCols);
 }
-
-class BoardPositions {
-public:
-  class BoardPositionsIterator {
-  public:
-    struct EndTag {};
-
-    BoardPositionsIterator() = default;
-    BoardPositionsIterator(const EndTag)
-        : mPos(Position{.iRow = kNumRows, .iColumn = 0}) {}
-
-    Position operator*() const { return mPos; }
-    BoardPositionsIterator operator++() {
-      ++mPos.iColumn;
-      if (mPos.iColumn == kNumCols) {
-        mPos.iColumn = 0;
-        ++mPos.iRow;
-      }
-      return *this;
-    }
-    bool operator==(const BoardPositionsIterator &) const = default;
-    bool operator!=(const BoardPositionsIterator &) const = default;
-
-  private:
-    Position mPos{.iRow = 0, .iColumn = 0};
-  };
-
-  BoardPositionsIterator begin() const { return BoardPositionsIterator{}; }
-  BoardPositionsIterator end() const {
-    return BoardPositionsIterator{BoardPositionsIterator::EndTag{}};
-  }
-};
 
 /// @brief The index into a linear array representing the 2D position given by
 ///  @a row and @a col. Uses layout-right (row-major) ordering.
@@ -117,6 +86,40 @@ SquareState Board::getPieceConsiderMove(
     return (*this)(pos);
   }
 }
+
+Board::Iterator::Iterator(const BoardArray &board)
+    : mPos(Position{.iRow = 0, .iColumn = 0}), mBoard(board) {}
+
+Board::Iterator::value_type Board::Iterator::operator*() const {
+  return {mBoard.get()[linearIndex(mPos.iRow, mPos.iColumn)], mPos};
+}
+
+bool Board::Iterator::operator==(const Iterator &rhs) const {
+  return mPos == rhs.mPos;
+}
+
+bool Board::Iterator::operator==(EndSentinel) const {
+  return mPos.iRow >= kNumRows;
+}
+
+Board::Iterator &Board::Iterator::operator++() {
+  ++mPos.iColumn;
+  if (mPos.iColumn == kNumCols) {
+    mPos.iColumn = 0;
+    ++mPos.iRow;
+  }
+  return *this;
+}
+
+Board::Iterator Board::Iterator::operator++(int) {
+  const auto original = *this;
+  ++(*this);
+  return original;
+}
+
+Board::Iterator Board::begin() const { return Iterator{mBoard}; }
+
+Board::EndSentinel Board::end() const { return EndSentinel{}; }
 
 const Board::BoardArray &Board::boardState() const { return mBoard; }
 
@@ -216,6 +219,52 @@ TEST_CASE("Board getPieceConsideredMove") {
   CHECK(
       board.getPieceConsiderMove(chess::Position{3, 0}, intendedMove).value() ==
       chess::pieces::P);
+}
+
+TEST_CASE("Board iterator values") {
+  const auto board = chess::Board{};
+  auto iter = board.begin();
+
+  CHECK((*iter).first == chess::pieces::R);
+  ++iter;
+  /*  CHECK(*iter == chess::pieces::N);
+    iter++;
+    CHECK(*iter == chess::pieces::B);
+    ++iter;
+    CHECK(*iter == chess::pieces::Q);
+    iter++;
+    CHECK(*iter == chess::pieces::K);
+    ++iter;
+    CHECK(*iter == chess::pieces::B);
+    iter++;
+    CHECK(*iter == chess::pieces::N);
+    ++iter;
+    CHECK(*iter == chess::pieces::R);
+    iter++;
+    CHECK(*iter == chess::pieces::P);*/
+}
+
+TEST_CASE("Board iterator predicates") {
+  const auto board = chess::Board{};
+  const auto begin = board.begin();
+  const auto end = board.end();
+  CHECK(begin == begin);
+  CHECK(begin != end);
+
+  auto iter = begin;
+  ++iter;
+  CHECK(iter == iter);
+  CHECK(begin != iter);
+  CHECK(end != iter);
+}
+
+TEST_CASE("Board for loop") {
+  int count = 0;
+  const auto board = chess::Board{};
+  for (const auto [state, position] : board) {
+    ++count;
+  }
+  CHECK(count == chess::kNumPositions);
 }
 
 TEST_CASE("Board findKing") {

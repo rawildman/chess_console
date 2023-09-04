@@ -1,10 +1,12 @@
 set(LIB_SRC
+    defends_attack.cpp
     escapes_attack.cpp
     takes_piece.cpp 
     threatens_king.cpp 
     under_attack.cpp)
 set(LIB_HDR 
     core_fwds.hpp 
+    defends_attack.hpp
     escapes_attack.hpp
     takes_piece.hpp 
     threatens_king.hpp 

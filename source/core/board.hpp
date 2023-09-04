@@ -1,6 +1,9 @@
 #pragma once
 
+#include "pieces.hpp"
+
 #include <array>
+#include <functional>
 #include <initializer_list>
 #include <optional>
 #include <ostream>
@@ -20,22 +23,6 @@ struct Position {
 
 std::ostream &operator<<(std::ostream &stream, const Position &pos);
 
-enum struct Piece { kPawn, kRook, kKnight, kBishop, kQueen, kKing };
-
-enum struct Side { kWhite, kBlack };
-
-struct PieceWithSide {
-  Piece mPiece = Piece::kPawn;
-  Side mSide = Side::kBlack;
-
-  auto operator<=>(const PieceWithSide &) const = default;
-};
-std::ostream &operator<<(std::ostream &stream, const PieceWithSide &piece);
-
-using SquareState = std::optional<PieceWithSide>;
-
-std::ostream &operator<<(std::ostream &stream, const SquareState &piece);
-
 struct IntendedMove {
   PieceWithSide piece;
   Position from;
@@ -43,26 +30,6 @@ struct IntendedMove {
 };
 
 namespace pieces {
-constexpr auto R = PieceWithSide{.mPiece = Piece::kRook, .mSide = Side::kWhite};
-constexpr auto N =
-    PieceWithSide{.mPiece = Piece::kKnight, .mSide = Side::kWhite};
-constexpr auto B =
-    PieceWithSide{.mPiece = Piece::kBishop, .mSide = Side::kWhite};
-constexpr auto Q =
-    PieceWithSide{.mPiece = Piece::kQueen, .mSide = Side::kWhite};
-constexpr auto K = PieceWithSide{.mPiece = Piece::kKing, .mSide = Side::kWhite};
-constexpr auto P = PieceWithSide{.mPiece = Piece::kPawn, .mSide = Side::kWhite};
-constexpr auto r = PieceWithSide{.mPiece = Piece::kRook, .mSide = Side::kBlack};
-constexpr auto n =
-    PieceWithSide{.mPiece = Piece::kKnight, .mSide = Side::kBlack};
-constexpr auto b =
-    PieceWithSide{.mPiece = Piece::kBishop, .mSide = Side::kBlack};
-constexpr auto q =
-    PieceWithSide{.mPiece = Piece::kQueen, .mSide = Side::kBlack};
-constexpr auto k = PieceWithSide{.mPiece = Piece::kKing, .mSide = Side::kBlack};
-constexpr auto p = PieceWithSide{.mPiece = Piece::kPawn, .mSide = Side::kBlack};
-constexpr auto E = std::nullopt;
-
 // clang-format off
 constexpr std::array<SquareState, kNumPositions> kInitialBoardState = {
     R, N, B, Q, K, B, N, R,
@@ -95,15 +62,53 @@ public:
 
   [[nodiscard]] const BoardArray &boardState() const;
 
+  struct EndSentinel {};
+  class Iterator {
+  public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = std::pair<SquareState, Position>;
+    using difference_type = std::ptrdiff_t;
+
+    Iterator(const BoardArray &board);
+
+    [[nodiscard]] value_type operator*() const;
+    Iterator &operator++();
+    Iterator operator++(int);
+
+    [[nodiscard]] bool operator==(const Iterator &rhs) const;
+    [[nodiscard]] bool operator==(EndSentinel rhs) const;
+
+  private:
+    Position mPos{.iRow = 0, .iColumn = 0};
+    std::reference_wrapper<const BoardArray> mBoard;
+  };
+
+  [[nodiscard]] Iterator begin() const;
+  [[nodiscard]] EndSentinel end() const;
+
 private:
   BoardArray mBoard = pieces::kInitialBoardState;
 };
 
+/// @brief Converts a character representation to a PieceWithSide.
+///
+/// Upper case indicates white and lower case indicates black. Characters
+/// are the first letter of the piece name, aside from knight, which is N.
 [[nodiscard]] PieceWithSide charToPiece(char piece);
+
+/// Upper case indicates white and lower case indicates black. Characters
+/// are the first letter of the piece name, aside from knight, which is N.
 [[nodiscard]] char pieceToChar(PieceWithSide piece);
 
+/// @brief Checks if the position given by @a pos has a row in the range
+///  [0, 7] and a column in the range [0, 7]
 [[nodiscard]] bool validBoardPosition(const Position &pos);
+
+/// @return The Position of the king on side @a side.
 [[nodiscard]] Position findKing(const Board &board, Side side);
+
+/// @return The Side opposite of @a side. E.g. if @a side is white, returns
+/// black.
 [[nodiscard]] Side opponentSide(Side side);
 
 } // namespace chess
