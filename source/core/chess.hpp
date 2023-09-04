@@ -4,7 +4,7 @@
 #include <array>
 
 namespace chess {
-Side getPieceColor(PieceWithSide piece);
+Side getPieceSide(PieceWithSide piece);
 
 bool isWhitePiece(PieceWithSide piece);
 

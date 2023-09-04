@@ -21,8 +21,18 @@ void updateAttack(UnderAttack &attack, const Position position,
 }
 } // namespace
 
-UnderAttack underAttack(const Position pos, const Side iColor,
-                        const Board &board,
+bool isKingInCheck(const Board &board, Side side,
+                   const std::optional<IntendedMove> &intended_move) {
+  const Position king =
+      intended_move.has_value() && Piece::kKing == intended_move->chPiece.mPiece
+          ? intended_move->to
+          : findKing(board, side);
+  const UnderAttack king_attacked =
+      underAttack(king, side, board, intended_move);
+  return king_attacked.bUnderAttack;
+}
+
+UnderAttack underAttack(const Position pos, const Side side, const Board &board,
                         const std::optional<IntendedMove> &intended_move) {
   UnderAttack attack;
   // a) Direction: HORIZONTAL
@@ -37,7 +47,7 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const Position checkPos = leftIndexer(j);
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kRook)) {
         updateAttack(attack, checkPos, Direction::HORIZONTAL);
@@ -56,7 +66,7 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const Position checkPos = rightIndexer(j);
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kRook)) {
         updateAttack(attack, checkPos, Direction::HORIZONTAL);
@@ -76,7 +86,7 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const Position checkPos = downIndexer(i);
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kRook)) {
         updateAttack(attack, checkPos, Direction::VERTICAL);
@@ -95,7 +105,7 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const Position checkPos = upIndexer(i);
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kRook)) {
         updateAttack(attack, checkPos, Direction::VERTICAL);
@@ -117,13 +127,12 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
       const auto isValidPawn = [chPieceFound, pos,
-                                iColor](const Position checkPos) {
+                                side](const Position checkPos) {
         return (chPieceFound->mPiece == Piece::kPawn) &&
                (checkPos.iRow == pos.iRow + 1) &&
-               (checkPos.iColumn == pos.iColumn + 1) &&
-               (iColor == Side::kWhite);
+               (checkPos.iColumn == pos.iColumn + 1) && (side == Side::kWhite);
       };
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (isValidPawn(checkPos) || chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kBishop)) {
         updateAttack(attack, checkPos, Direction::DIAGONAL);
@@ -144,13 +153,12 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
       const auto isValidPawn = [chPieceFound, pos,
-                                iColor](const Position checkPos) {
+                                side](const Position checkPos) {
         return (chPieceFound->mPiece == Piece::kPawn) &&
                (checkPos.iRow == pos.iRow + 1) &&
-               (checkPos.iColumn == pos.iColumn - 1) &&
-               (iColor == Side::kWhite);
+               (checkPos.iColumn == pos.iColumn - 1) && (side == Side::kWhite);
       };
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (isValidPawn(checkPos) || chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kBishop)) {
         updateAttack(attack, checkPos, Direction::DIAGONAL);
@@ -171,13 +179,12 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
       const auto isValidPawn = [chPieceFound, pos,
-                                iColor](const Position checkPos) {
+                                side](const Position checkPos) {
         return (chPieceFound->mPiece == Piece::kPawn) &&
                (checkPos.iRow == pos.iRow - 1) &&
-               (checkPos.iColumn == pos.iColumn + 1) &&
-               (iColor == Side::kBlack);
+               (checkPos.iColumn == pos.iColumn + 1) && (side == Side::kBlack);
       };
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (isValidPawn(checkPos) || chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kBishop)) {
         updateAttack(attack, checkPos, Direction::DIAGONAL);
@@ -198,13 +205,12 @@ UnderAttack underAttack(const Position pos, const Side iColor,
       const SquareState chPieceFound =
           board.getPieceConsiderMove(checkPos, intended_move);
       const auto isValidPawn = [chPieceFound, pos,
-                                iColor](const Position checkPos) {
+                                side](const Position checkPos) {
         return (chPieceFound->mPiece == Piece::kPawn) &&
                (checkPos.iRow == pos.iRow - 1) &&
-               (checkPos.iColumn == pos.iColumn - 1) &&
-               (iColor == Side::kBlack);
+               (checkPos.iColumn == pos.iColumn - 1) && (side == Side::kBlack);
       };
-      if (iColor != getPieceColor(chPieceFound.value()) &&
+      if (side != getPieceSide(chPieceFound.value()) &&
           (isValidPawn(checkPos) || chPieceFound->mPiece == Piece::kQueen ||
            chPieceFound->mPiece == Piece::kBishop)) {
         updateAttack(attack, checkPos, Direction::DIAGONAL);
@@ -224,7 +230,7 @@ UnderAttack underAttack(const Position pos, const Side iColor,
     const Position checkPos = lShapedIndexer(i);
     const SquareState chPieceFound =
         board.getPieceConsiderMove(checkPos, intended_move);
-    if (iColor != getPieceColor(chPieceFound.value()) &&
+    if (side != getPieceSide(chPieceFound.value()) &&
         chPieceFound->mPiece == Piece::kKnight) {
       updateAttack(attack, checkPos, Direction::L_SHAPE);
     }

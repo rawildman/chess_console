@@ -6,11 +6,17 @@
 #include <optional>
 
 namespace chess {
+
+/// Checks if the king of side @a side is in check, considering the move
+/// @a intended_move.
+bool isKingInCheck(const Board &board, Side side,
+                   const std::optional<IntendedMove> &intended_move);
+
 /// @param pos Position at which to check if it is under attack
-/// @param iColor Side which would be under attack (defending side)
+/// @param side Side which would be under attack (defending side)
 /// @param intended_move A potential move to consider
 UnderAttack
-underAttack(Position pos, Side iColor, const Board &board,
+underAttack(Position pos, Side side, const Board &board,
             const std::optional<IntendedMove> &intended_move = std::nullopt);
 
 template <typename Indexer>

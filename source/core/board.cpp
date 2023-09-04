@@ -12,6 +12,38 @@ void affirmIndices(const int row, const int col) {
   assert(col >= 0 && col < kNumCols);
 }
 
+class BoardPositions {
+public:
+  class BoardPositionsIterator {
+  public:
+    struct EndTag {};
+
+    BoardPositionsIterator() = default;
+    BoardPositionsIterator(const EndTag)
+        : mPos(Position{.iRow = kNumRows, .iColumn = 0}) {}
+
+    Position operator*() const { return mPos; }
+    BoardPositionsIterator operator++() {
+      ++mPos.iColumn;
+      if (mPos.iColumn == kNumCols) {
+        mPos.iColumn = 0;
+        ++mPos.iRow;
+      }
+      return *this;
+    }
+    bool operator==(const BoardPositionsIterator &) const = default;
+    bool operator!=(const BoardPositionsIterator &) const = default;
+
+  private:
+    Position mPos{.iRow = 0, .iColumn = 0};
+  };
+
+  BoardPositionsIterator begin() const { return BoardPositionsIterator{}; }
+  BoardPositionsIterator end() const {
+    return BoardPositionsIterator{BoardPositionsIterator::EndTag{}};
+  }
+};
+
 /// @brief The index into a linear array representing the 2D position given by
 ///  @a row and @a col. Uses layout-right (row-major) ordering.
 /// @param row Must be >= 0 and less than 8
@@ -96,6 +128,24 @@ bool validBoardPosition(const Position &pos) {
   return pos.iRow >= 0 && pos.iRow < kNumRows && pos.iColumn >= 0 &&
          pos.iColumn < kNumCols;
 }
+
+Position findKing(const Board &board, const Side side) {
+  const PieceWithSide chKing{.mPiece = Piece::kKing, .mSide = side};
+  Position king;
+
+  for (const Position pos : BoardPositions{}) {
+    if (const SquareState square = board(pos); square && *square == chKing) {
+      king = pos;
+    }
+  }
+
+  return king;
+}
+
+Side opponentSide(const Side side) {
+  return side == Side::kWhite ? Side::kBlack : Side::kWhite;
+}
+
 } // namespace chess
 
 #if defined(UNIT_TEST)
@@ -166,6 +216,22 @@ TEST_CASE("Board getPieceConsideredMove") {
   CHECK(
       board.getPieceConsiderMove(chess::Position{3, 0}, intendedMove).value() ==
       chess::pieces::P);
+}
+
+TEST_CASE("Board findKing") {
+  const chess::Board board;
+  const chess::Position whiteKingPosition =
+      findKing(board, chess::Side::kWhite);
+  CHECK(whiteKingPosition == chess::Position{0, 4});
+
+  const chess::Position blackKingPosition =
+      findKing(board, chess::Side::kBlack);
+  CHECK(blackKingPosition == chess::Position{7, 4});
+}
+
+TEST_CASE("Board opponentSide") {
+  CHECK(chess::opponentSide(chess::Side::kWhite) == chess::Side::kBlack);
+  CHECK(chess::opponentSide(chess::Side::kBlack) == chess::Side::kWhite);
 }
 
 #endif

@@ -99,8 +99,11 @@ private:
   BoardArray mBoard = pieces::kInitialBoardState;
 };
 
-PieceWithSide charToPiece(char piece);
-char pieceToChar(PieceWithSide piece);
+[[nodiscard]] PieceWithSide charToPiece(char piece);
+[[nodiscard]] char pieceToChar(PieceWithSide piece);
 
-bool validBoardPosition(const Position &pos);
+[[nodiscard]] bool validBoardPosition(const Position &pos);
+[[nodiscard]] Position findKing(const Board &board, Side side);
+[[nodiscard]] Side opponentSide(Side side);
+
 } // namespace chess

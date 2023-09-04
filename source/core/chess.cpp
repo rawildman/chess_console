@@ -2,14 +2,14 @@
 
 namespace chess {
 
-Side getPieceColor(const PieceWithSide piece) { return piece.mSide; }
+Side getPieceSide(const PieceWithSide piece) { return piece.mSide; }
 
 bool isWhitePiece(const PieceWithSide piece) {
-  return getPieceColor(piece) == Side::kWhite;
+  return getPieceSide(piece) == Side::kWhite;
 }
 
 bool isBlackPiece(const PieceWithSide piece) {
-  return getPieceColor(piece) == Side::kBlack;
+  return getPieceSide(piece) == Side::kBlack;
 }
 
 std::string describePiece(const PieceWithSide piece) {

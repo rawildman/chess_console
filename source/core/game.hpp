@@ -25,7 +25,7 @@ public:
 
   bool undoIsPossible() const;
 
-  bool castlingAllowed(BoardSide iSide, Side iColor) const;
+  bool castlingAllowed(BoardSide iSide, Side side) const;
 
   SquareState getPieceAtPosition(Position pos) const;
 
@@ -34,13 +34,13 @@ public:
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
   /// @param pos Position at which to check if it is under attack
-  /// @param iColor Side which would be under attack (defending side)
+  /// @param side Side which would be under attack (defending side)
   /// @param intended_move A potential move to consider
   UnderAttack isUnderAttack(
-      Position pos, Side iColor,
+      Position pos, Side side,
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
-  bool isReachable(Position pos, Side iColor) const;
+  bool isReachable(Position pos, Side side) const;
 
   bool isSquareOccupied(Position pos) const;
 
@@ -52,16 +52,11 @@ public:
 
   bool isCheckMate();
 
-  bool isKingInCheck(Side iColor,
-                     const std::optional<IntendedMove> &intended_move) const;
-
   bool playerKingInCheck(
       const std::optional<IntendedMove> &intended_move = std::nullopt) const;
 
   bool wouldKingBeInCheck(PieceWithSide chPiece, Position present,
                           Position future, EnPassant &S_enPassant) const;
-
-  Position findKing(Side iColor) const;
 
   void changeTurns();
 
@@ -69,7 +64,7 @@ public:
 
   Side getCurrentTurn() const;
 
-  Side getOpponentColor() const;
+  Side getOpponentSide() const;
 
   std::tuple<Position, Position, SquareState>
   parseMoveWithPromotion(const std::string &move) const;

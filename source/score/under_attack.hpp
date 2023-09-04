@@ -1,16 +1,11 @@
 #pragma once
 
-namespace chess {
-class Board;
-struct Position;
-enum struct Side;
-} // namespace chess
+#include "core_fwds.hpp"
 
 namespace chess::score {
 class UnderAttack {
 public:
   [[nodiscard]] double operator()(const chess::Board &board,
-                                  const chess::Position &position,
-                                  chess::Side side) const;
+                                  const chess::IntendedMove &move) const;
 };
 } // namespace chess::score

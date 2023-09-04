@@ -227,7 +227,7 @@ bool isMoveValid(const Game &current_game, const Position present,
         // if future.iColumn is greather, it means king side
         if (false ==
             current_game.castlingAllowed(chess::BoardSide::KING_SIDE,
-                                         chess::getPieceColor(*chPiece))) {
+                                         chess::getPieceSide(*chPiece))) {
           createNextMessage("Castling to the king side is not allowed.\n");
           return false;
         } else {
@@ -255,7 +255,7 @@ bool isMoveValid(const Game &current_game, const Position present,
       {
         // if present.iColumn is greather, it means queen side
         if (!current_game.castlingAllowed(BoardSide::QUEEN_SIDE,
-                                          getPieceColor(*chPiece))) {
+                                          getPieceSide(*chPiece))) {
           createNextMessage("Castling to the queen side is not allowed.\n");
           return false;
         } else {
@@ -300,7 +300,7 @@ bool isMoveValid(const Game &current_game, const Position present,
   // -------------------------------------------------------------------------
   if (current_game.isSquareOccupied(future)) {
     if (const SquareState chAuxPiece = current_game.getPieceAtPosition(future);
-        chAuxPiece && getPieceColor(*chPiece) == getPieceColor(*chAuxPiece)) {
+        chAuxPiece && getPieceSide(*chPiece) == getPieceSide(*chAuxPiece)) {
       std::cout << "Position is already taken by a piece of the same color\n";
       return false;
     }

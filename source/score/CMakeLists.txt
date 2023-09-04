@@ -1,5 +1,5 @@
-set(LIB_SRC takes_piece.cpp under_attack.cpp)
-set(LIB_HDR takes_piece.cpp under_attack.hpp)
+set(LIB_SRC takes_piece.cpp threatens_king.cpp under_attack.cpp)
+set(LIB_HDR core_fwds.hpp takes_piece.cpp threatens_king.hpp under_attack.hpp)
 
 add_library(score ${LIB_SRC} ${LIB_HDR})
 target_include_directories(score PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
@@ -10,7 +10,8 @@ set_property(TARGET score PROPERTY CXX_STANDARD 20)
 set_property(TARGET score PROPERTY CXX_STANDARD_REQUIRED ON)
 
 if(${BUILD_UNIT_TESTS})
-    add_executable(score_unittests ${LIB_SRC})
+    set(TEST_SRC test_utility.cpp)
+    add_executable(score_unittests ${LIB_SRC} ${TEST_SRC})
     set_property(TARGET score_unittests PROPERTY CXX_STANDARD 20)
     target_compile_definitions(score_unittests PUBLIC UNIT_TEST=1)
     target_compile_options(score_unittests PRIVATE -fprofile-arcs -ftest-coverage)

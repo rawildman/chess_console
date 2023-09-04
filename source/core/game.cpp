@@ -22,37 +22,6 @@ int charToRow(const char row) { return row - '1'; }
 
 int charToColumn(const char col) { return col - 'A'; }
 
-class BoardPositions {
-public:
-  class BoardPositionsIterator {
-  public:
-    struct EndTag {};
-
-    BoardPositionsIterator() = default;
-    BoardPositionsIterator(const EndTag)
-        : mPos(Position{.iRow = kNumRows, .iColumn = 0}) {}
-
-    Position operator*() const { return mPos; }
-    BoardPositionsIterator operator++() {
-      ++mPos.iColumn;
-      if (mPos.iColumn == kNumCols) {
-        mPos.iColumn = 0;
-        ++mPos.iRow;
-      }
-      return *this;
-    }
-    bool operator==(const BoardPositionsIterator &) const = default;
-    bool operator!=(const BoardPositionsIterator &) const = default;
-
-  private:
-    Position mPos{.iRow = 0, .iColumn = 0};
-  };
-
-  BoardPositionsIterator begin() const { return BoardPositionsIterator{}; }
-  BoardPositionsIterator end() const {
-    return BoardPositionsIterator{BoardPositionsIterator::EndTag{}};
-  }
-};
 } // namespace
 
 std::pair<Position, Position> parseMove(const std::string &move) {
@@ -241,12 +210,12 @@ void Game::undoLastMove() {
 
 bool Game::undoIsPossible() const { return m_undo.bCanUndo; }
 
-bool Game::castlingAllowed(const BoardSide iSide, const Side iColor) const {
+bool Game::castlingAllowed(const BoardSide iSide, const Side side) const {
   if (BoardSide::QUEEN_SIDE == iSide) {
-    return m_bCastlingQueenSideAllowed.at(iColor);
+    return m_bCastlingQueenSideAllowed.at(side);
   } else // if ( KING_SIDE == iSide )
   {
-    return m_bCastlingKingSideAllowed.at(iColor);
+    return m_bCastlingKingSideAllowed.at(side);
   }
 }
 
@@ -261,19 +230,19 @@ SquareState Game::getPieceConsiderMove(
 }
 
 UnderAttack
-Game::isUnderAttack(const Position pos, const Side iColor,
+Game::isUnderAttack(const Position pos, const Side side,
                     const std::optional<IntendedMove> &intended_move) const {
-  return underAttack(pos, iColor, m_board, intended_move);
+  return underAttack(pos, side, m_board, intended_move);
 }
 
-bool Game::isReachable(const Position pos, const Side iColor) const {
+bool Game::isReachable(const Position pos, const Side side) const {
   bool bReachable = false;
 
   // a) Direction: HORIZONTAL
   // Check all the way to the right
   for (int i = pos.iColumn + 1; i < 8; i++) {
     if (const SquareState chPieceFound = getPieceAtPosition({pos.iRow, i})) {
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -291,7 +260,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
   // Check all the way to the left
   for (int i = pos.iColumn - 1; i >= 0; i--) {
     if (const SquareState chPieceFound = getPieceAtPosition({pos.iRow, i})) {
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -310,11 +279,11 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
   // Check all the way up
   for (int i = pos.iRow + 1; i < 8; i++) {
     if (const SquareState chPieceFound = getPieceAtPosition({pos.iRow, i})) {
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kPawn) &&
-                 (getPieceColor(*chPieceFound) == Side::kBlack) &&
+                 (getPieceSide(*chPieceFound) == Side::kBlack) &&
                  (i == pos.iRow + 1)) {
         // There is a pawn one square up, so the square is reachable
         bReachable = true;
@@ -334,11 +303,11 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
   // Check all the way down
   for (int i = pos.iRow - 1; i >= 0; i--) {
     if (const SquareState chPieceFound = getPieceAtPosition({pos.iRow, i})) {
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kPawn) &&
-                 (getPieceColor(*chPieceFound) == Side::kWhite) &&
+                 (getPieceSide(*chPieceFound) == Side::kWhite) &&
                  (i == pos.iRow - 1)) {
         // There is a pawn one square down, so the square is reachable
         bReachable = true;
@@ -366,7 +335,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
         continue;
       }
 
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -389,7 +358,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
         continue;
       }
 
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -412,7 +381,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
         continue;
       }
 
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -435,7 +404,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
         continue;
       }
 
-      if (iColor == getPieceColor(*chPieceFound)) {
+      if (side == getPieceSide(*chPieceFound)) {
         // This is a piece of the same color
         break;
       } else if ((chPieceFound->mPiece == Piece::kQueen) ||
@@ -464,7 +433,7 @@ bool Game::isReachable(const Position pos, const Side iColor) const {
         continue;
       }
       const SquareState chPieceFound = getPieceAtPosition(posToTest);
-      if (!chPieceFound || iColor == getPieceColor(*chPieceFound)) {
+      if (!chPieceFound || side == getPieceSide(*chPieceFound)) {
         // This square is empty
         // or this is a piece of the same color
         continue;
@@ -647,7 +616,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
     // Moving to the right
     else if (startingPos.iColumn < finishingPos.iColumn) {
       for (int i = startingPos.iColumn + 1; i < finishingPos.iColumn; i++) {
-        if (isReachable({startingPos.iRow, i}, getOpponentColor())) {
+        if (isReachable({startingPos.iRow, i}, getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -658,7 +627,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
     else // if (startingPos.iColumn > finishingPos.iColumn)
     {
       for (int i = startingPos.iColumn - 1; i > finishingPos.iColumn; i--) {
-        if (isReachable({startingPos.iRow, i}, getOpponentColor())) {
+        if (isReachable({startingPos.iRow, i}, getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -677,7 +646,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
     // Moving up
     else if (startingPos.iRow < finishingPos.iRow) {
       for (int i = startingPos.iRow + 1; i < finishingPos.iRow; i++) {
-        if (isReachable({i, startingPos.iColumn}, getOpponentColor())) {
+        if (isReachable({i, startingPos.iColumn}, getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -688,7 +657,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
     else // if (startingPos.iColumn > finishingPos.iRow)
     {
       for (int i = startingPos.iRow - 1; i > finishingPos.iRow; i--) {
-        if (isReachable({i, startingPos.iColumn}, getOpponentColor())) {
+        if (isReachable({i, startingPos.iColumn}, getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -702,7 +671,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
         (finishingPos.iColumn > startingPos.iColumn)) {
       for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++) {
         if (isReachable({startingPos.iRow + i, startingPos.iColumn + i},
-                        getOpponentColor())) {
+                        getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -714,7 +683,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
              (finishingPos.iColumn < startingPos.iColumn)) {
       for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++) {
         if (isReachable({startingPos.iRow + i, startingPos.iColumn - i},
-                        getOpponentColor())) {
+                        getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -726,7 +695,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
              (finishingPos.iColumn > startingPos.iColumn)) {
       for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++) {
         if (isReachable({startingPos.iRow - i, startingPos.iColumn + i},
-                        getOpponentColor())) {
+                        getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -738,7 +707,7 @@ bool Game::canBeBlocked(Position startingPos, Position finishingPos,
              (finishingPos.iColumn < startingPos.iColumn)) {
       for (int i = 1; i < abs(finishingPos.iRow - startingPos.iRow); i++) {
         if (isReachable({startingPos.iRow - i, startingPos.iColumn - i},
-                        getOpponentColor())) {
+                        getOpponentSide())) {
           // Some piece can block the way
           bBlocked = true;
         }
@@ -765,7 +734,7 @@ bool Game::isCheckMate() {
       Position{1, -1}, Position{1, 0},  Position{1, 1},   Position{0, 1},
       Position{-1, 1}, Position{-1, 0}, Position{-1, -1}, Position{0, -1}};
 
-  const Position king = findKing(getCurrentTurn());
+  const Position king = findKing(m_board, getCurrentTurn());
 
   for (int i = 0; i < 8; i++) {
     const Position posToTest{king.iRow + king_moves[i].iRow,
@@ -807,7 +776,7 @@ bool Game::isCheckMate() {
   if (king_attacked.iNumAttackers == 1) {
     // Can the attacker be taken?
     const UnderAttack king_attacker =
-        isUnderAttack(king_attacked.attacker.front().pos, getOpponentColor());
+        isUnderAttack(king_attacked.attacker.front().pos, getOpponentSide());
 
     if (king_attacker.bUnderAttack) {
       // This means that the attacker can be taken, so it's not a checkmate
@@ -867,20 +836,9 @@ bool Game::isCheckMate() {
   return bCheckmate;
 }
 
-bool Game::isKingInCheck(
-    const Side iColor,
-    const std::optional<IntendedMove> &pintended_move) const {
-  const Position king = pintended_move.has_value() &&
-                                Piece::kKing == pintended_move->chPiece.mPiece
-                            ? pintended_move->to
-                            : findKing(iColor);
-  const UnderAttack king_attacked = isUnderAttack(king, iColor, pintended_move);
-  return king_attacked.bUnderAttack;
-}
-
 bool Game::playerKingInCheck(
     const std::optional<IntendedMove> &intended_move) const {
-  return isKingInCheck(getCurrentTurn(), intended_move);
+  return isKingInCheck(m_board, getCurrentTurn(), intended_move);
 }
 
 bool Game::wouldKingBeInCheck(const PieceWithSide chPiece,
@@ -889,20 +847,6 @@ bool Game::wouldKingBeInCheck(const PieceWithSide chPiece,
   const IntendedMove intended_move{
       .chPiece = chPiece, .from = present, .to = future};
   return playerKingInCheck(intended_move);
-}
-
-Position Game::findKing(const Side iColor) const {
-  const PieceWithSide chKing{.mPiece = Piece::kKing, .mSide = iColor};
-  Position king;
-
-  for (const Position pos : BoardPositions{}) {
-    if (const SquareState square = getPieceAtPosition(pos);
-        square && *square == chKing) {
-      king = pos;
-    }
-  }
-
-  return king;
 }
 
 void Game::changeTurns(void) {
@@ -917,9 +861,7 @@ bool Game::isFinished() const { return m_bGameFinished; }
 
 Side Game::getCurrentTurn() const { return m_CurrentTurn; }
 
-Side Game::getOpponentColor() const {
-  return Side::kWhite == getCurrentTurn() ? Side::kBlack : Side::kWhite;
-}
+Side Game::getOpponentSide() const { return opponentSide(getCurrentTurn()); }
 
 std::tuple<Position, Position, SquareState>
 Game::parseMoveWithPromotion(const std::string &move) const {
@@ -987,7 +929,7 @@ void Game::deleteLastMove(void) {
 }
 
 void Game::capturePiece(const PieceWithSide piece) {
-  if (Side::kWhite == getPieceColor(piece)) {
+  if (Side::kWhite == getPieceSide(piece)) {
     // A white piece was captured
     white_captured.push_back(piece);
   } else {
@@ -1008,7 +950,7 @@ void makeTheMove(chess::Game &current_game, const chess::Position present,
   if (chPiece && current_game.isSquareOccupied(future)) {
     if (const SquareState chAuxPiece = current_game.getPieceAtPosition(future);
         chAuxPiece &&
-        chess::getPieceColor(*chPiece) != chess::getPieceColor(*chAuxPiece)) {
+        chess::getPieceSide(*chPiece) != chess::getPieceSide(*chAuxPiece)) {
       createNextMessage(chess::describePiece(*chAuxPiece) + " captured!\n");
     } else {
       throw(GameException("We should not be making this move"));
@@ -1111,15 +1053,6 @@ TEST_CASE("Game isUnderAttack_initialBoard") {
     CHECK(under_attack.attacker[1].pos == chess::Position{0, 1});
     CHECK(under_attack.attacker[1].dir == chess::Direction::L_SHAPE);
   }
-}
-
-TEST_CASE("Game findKing") {
-  chess::Game game;
-  const chess::Position whiteKingPosition = game.findKing(chess::Side::kWhite);
-  CHECK(whiteKingPosition == chess::Position{0, 4});
-
-  const chess::Position blackKingPosition = game.findKing(chess::Side::kBlack);
-  CHECK(blackKingPosition == chess::Position{7, 4});
 }
 
 #endif

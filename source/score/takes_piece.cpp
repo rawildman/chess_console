@@ -13,10 +13,9 @@ std::unordered_map<chess::Piece, double> kPieceValues = {
 }
 
 double TakesPiece::operator()(const chess::Board &board,
-                              const chess::Position &position,
-                              const chess::Side side) const {
-  const chess::SquareState result = board(position);
-  if (result.has_value() && result->mSide != side) {
+                              const chess::IntendedMove &move) const {
+  const chess::SquareState result = board(move.to);
+  if (result.has_value() && result->mSide != move.chPiece.mSide) {
     return kPieceValues.at(result->mPiece);
   } else {
     return 0.0;
@@ -27,45 +26,49 @@ double TakesPiece::operator()(const chess::Board &board,
 
 #if defined(UNIT_TEST)
 
+#include "test_utility.hpp"
+
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("Takes piece") {
+  namespace cst = chess::score::test;
+
   const auto scorer = chess::score::TakesPiece{};
   const auto board = chess::Board{};
-  CHECK(scorer(board, chess::Position{0, 0}, chess::Side::kBlack) ==
-        5.0); // Rook
-  CHECK(scorer(board, chess::Position{0, 1}, chess::Side::kBlack) ==
-        3.0); // Knight
-  CHECK(scorer(board, chess::Position{0, 2}, chess::Side::kBlack) ==
-        3.0); // Bishop
-  CHECK(scorer(board, chess::Position{0, 3}, chess::Side::kBlack) ==
-        9.0); // Queen
-  CHECK(scorer(board, chess::Position{0, 4}, chess::Side::kBlack) ==
-        100.0); // King
-  CHECK(scorer(board, chess::Position{1, 4}, chess::Side::kBlack) ==
-        1.0); // Pawn
-  CHECK(scorer(board, chess::Position{7, 7}, chess::Side::kBlack) ==
-        0.0); // Own side
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 0},
+                                    chess::Side::kBlack)) == 5.0); // Rook
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 1},
+                                    chess::Side::kBlack)) == 3.0); // Knight
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 2},
+                                    chess::Side::kBlack)) == 3.0); // Bishop
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 3},
+                                    chess::Side::kBlack)) == 9.0); // Queen
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 4},
+                                    chess::Side::kBlack)) == 100.0); // King
+  CHECK(scorer(board, cst::testMove(chess::Position{1, 4},
+                                    chess::Side::kBlack)) == 1.0); // Pawn
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 7},
+                                    chess::Side::kBlack)) == 0.0); // Own side
 
-  CHECK(scorer(board, chess::Position{7, 7}, chess::Side::kWhite) ==
-        5.0); // Rook
-  CHECK(scorer(board, chess::Position{7, 6}, chess::Side::kWhite) ==
-        3.0); // Knight
-  CHECK(scorer(board, chess::Position{7, 5}, chess::Side::kWhite) ==
-        3.0); // Bishop
-  CHECK(scorer(board, chess::Position{7, 4}, chess::Side::kWhite) ==
-        100.0); // King
-  CHECK(scorer(board, chess::Position{7, 3}, chess::Side::kWhite) ==
-        9.0); // Queen
-  CHECK(scorer(board, chess::Position{6, 3}, chess::Side::kWhite) ==
-        1.0); // Pawn
-  CHECK(scorer(board, chess::Position{0, 0}, chess::Side::kWhite) ==
-        0.0); // Own side
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 7},
+                                    chess::Side::kWhite)) == 5.0); // Rook
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 6},
+                                    chess::Side::kWhite)) == 3.0); // Knight
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 5},
+                                    chess::Side::kWhite)) == 3.0); // Bishop
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 4},
+                                    chess::Side::kWhite)) == 100.0); // King
+  CHECK(scorer(board, cst::testMove(chess::Position{7, 3},
+                                    chess::Side::kWhite)) == 9.0); // Queen
+  CHECK(scorer(board, cst::testMove(chess::Position{6, 3},
+                                    chess::Side::kWhite)) == 1.0); // Pawn
+  CHECK(scorer(board, cst::testMove(chess::Position{0, 0},
+                                    chess::Side::kWhite)) == 0.0); // Own side
 
-  CHECK(scorer(board, chess::Position{3, 3}, chess::Side::kWhite) ==
-        0.0); // Empty
-  CHECK(scorer(board, chess::Position{3, 3}, chess::Side::kBlack) ==
-        0.0); // Empty
+  CHECK(scorer(board, cst::testMove(chess::Position{3, 3},
+                                    chess::Side::kWhite)) == 0.0); // Empty
+  CHECK(scorer(board, cst::testMove(chess::Position{3, 3},
+                                    chess::Side::kBlack)) == 0.0); // Empty
 }
 
 #endif
